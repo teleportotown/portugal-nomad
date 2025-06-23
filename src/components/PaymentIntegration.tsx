@@ -38,6 +38,10 @@ export function PaymentIntegration({ totalAmount, orderData }: PaymentIntegratio
   const nowpaymentsService = new NOWPaymentsService();
   const robokassaService = new RoboKassaService();
 
+  React.useEffect(() => {
+    nowpaymentsService.debugAvailableCurrencies();
+  }, []);
+
   const paymentMethods: PaymentMethod[] = [
     {
       id: 'eur',
@@ -58,23 +62,23 @@ export function PaymentIntegration({ totalAmount, orderData }: PaymentIntegratio
     {
       id: 'crypto',
       name: 'Оплатить крипто',
-      icon: '₿',
+      icon: '₮',
       color: 'from-purple-500 to-purple-600',
-      description: 'Оплата криптовалютой (BTC, ETH, USDT и 300+ других)',
+      description: 'Оплата криптовалютой USDT (TRC20)',
       provider: 'nowpayments'
     }
   ];
 
   const getConvertedAmount = (methodId: string) => {
-    const { eurToRub, eurToBtc } = PAYMENT_CONFIG.exchangeRates;
-    const rates = { rub: eurToRub, eur: 1, crypto: eurToBtc };
-    const symbols = { rub: '₽', eur: '€', crypto: '₿' };
+    const { eurToRub, eurToUsdt } = PAYMENT_CONFIG.exchangeRates;
+    const rates = { rub: eurToRub, eur: 1, crypto: eurToUsdt };
+    const symbols = { rub: '₽', eur: '€', crypto: 'USDT' };
     
     const calculatedAmount = totalAmount * rates[methodId as keyof typeof rates];
     let formattedAmount: string;
     
     if (methodId === 'crypto') {
-      formattedAmount = calculatedAmount.toFixed(6);
+      formattedAmount = calculatedAmount.toFixed(2);
     } else if (methodId === 'rub') {
       formattedAmount = Math.round(calculatedAmount).toString();
     } else {
@@ -129,7 +133,7 @@ export function PaymentIntegration({ totalAmount, orderData }: PaymentIntegratio
       } else {
         const result = await nowpaymentsService.createPayment({
           amount: totalAmount,
-          currency: 'BTC',
+          currency: 'USDTTRC20',
           orderId,
           description,
           email: orderData.contactInfo.email

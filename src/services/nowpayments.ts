@@ -2,7 +2,7 @@ import { PAYMENT_CONFIG } from '../config/payment';
 
 interface NOWPaymentsPaymentData {
   amount: number;
-  currency: 'BTC' | 'ETH' | 'USDT' | 'TRX';
+  currency: 'BTC' | 'ETH' | 'USDT' | 'TRX' | 'USDTTRC20' | 'USDTERC20' | 'USDTBEP20';
   orderId: string;
   description: string;
   email?: string;
@@ -106,15 +106,15 @@ export class NOWPaymentsService {
     try {
       try {
         const response = await this.makeRequest('/currencies', 'GET', undefined, true);
-        return response.currencies || ['BTC', 'ETH', 'USDT', 'TRX'];
+        return response.currencies || ['BTC', 'ETH', 'USDT', 'TRX', 'USDTTRC20', 'USDTERC20'];
       } catch (error) {
         console.log('Trying currencies with API key...');
         const response = await this.makeRequest('/currencies', 'GET', undefined, false);
-        return response.currencies || ['BTC', 'ETH', 'USDT', 'TRX'];
+        return response.currencies || ['BTC', 'ETH', 'USDT', 'TRX', 'USDTTRC20', 'USDTERC20'];
       }
     } catch (error) {
       console.error('Error getting currencies:', error);
-      return ['BTC', 'ETH', 'USDT', 'TRX'];
+      return ['BTC', 'ETH', 'USDT', 'TRX', 'USDTTRC20', 'USDTERC20'];
     }
   }
 
@@ -189,5 +189,32 @@ export class NOWPaymentsService {
 
   public verifyCallback(data: any): boolean {
     return true;
+  }
+
+  public async debugAvailableCurrencies(): Promise<void> {
+    try {
+      console.log('=== NOWPayments Currency Debug ===');
+      
+      const currencies = await this.getAvailableCurrencies();
+      console.log('Available currencies:', currencies);
+      
+      const usdtVariants = currencies.filter(c => 
+        c.toLowerCase().includes('usdt') || 
+        c.toLowerCase().includes('tether')
+      );
+      console.log('USDT variants found:', usdtVariants);
+      
+      for (const currency of ['usdt', 'usdttrc20', 'usdterc20', 'usdtbep20']) {
+        try {
+          const minAmount = await this.getMinimumAmount(currency);
+          console.log(`${currency.toUpperCase()} min amount:`, minAmount);
+        } catch (error) {
+          console.log(`${currency.toUpperCase()} not available:`, error.message);
+        }
+      }
+      
+    } catch (error) {
+      console.error('Debug currencies error:', error);
+    }
   }
 } 
