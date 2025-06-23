@@ -396,9 +396,9 @@ const ServiceCard: React.FC<{ service: Service; onToggle: (id: string) => void }
 
   const getCategoryBadge = (category: string) => {
     switch (category) {
-      case 'essential': return { text: 'Обязательно', color: 'bg-red-100 text-red-700' };
-      case 'additional': return { text: 'Дополнительно', color: 'bg-blue-100 text-blue-700' };
-      case 'premium': return { text: 'Премиум', color: 'bg-purple-100 text-purple-700' };
+      case 'essential': return { text: 'Basic', color: 'bg-red-100 text-red-700' };
+      case 'additional': return { text: 'Cтандарт', color: 'bg-blue-100 text-blue-700' };
+      case 'premium': return { text: 'Pro', color: 'bg-purple-100 text-purple-700' };
       default: return { text: '', color: '' };
     }
   };
